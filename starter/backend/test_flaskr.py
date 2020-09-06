@@ -52,7 +52,7 @@ class TriviaTestCase(unittest.TestCase):
         data=json.loads(res.data)
         self.assertEqual(res.status_code,404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'] , 'resource Not found')
+        self.assertEqual(data['message'] , 'Resource is Not found')
 
     def test_ret_all_avaiabe_categories(self):
         res=self.client().get('/categories')
@@ -66,7 +66,7 @@ class TriviaTestCase(unittest.TestCase):
         data=json.loads(res.data)
         self.assertEqual(res.status_code,404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'] , 'resource Not found')
+        self.assertEqual(data['message'] , 'Resource is Not found')
 
     def test_add_question(self):
         Q_Before = len(Question.query.all())
@@ -86,7 +86,7 @@ class TriviaTestCase(unittest.TestCase):
     
         self.assertEqual(res.status_code,404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'] , 'unprocessable  ')
+        self.assertEqual(data['message'] , 'unprocessable')
 
     def test_delete_Q(self):
         queston = self.new_Q
@@ -110,7 +110,7 @@ class TriviaTestCase(unittest.TestCase):
     
         self.assertEqual(res.status_code,422)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'] , 'unprocessable  ')
+        self.assertEqual(data['message'] , 'unprocessable')
         
     def test_search_q(self):
         what_we_search_for={
@@ -154,7 +154,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().get('/categories/XXXX/questions' )
         data=json.loads(res.data)
         self.assertEqual(res.status_code,404)
-        self.assertEqual(data['success'],True)
+        self.assertEqual(data['success'],False)
         self.assertEqual(data['message'] , 'Not found')
     def test_quiz(self):
         prev = {'previous_questions' : [] , 'quiz_category':{'type':'Sports','id':3}}
