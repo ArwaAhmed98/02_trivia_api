@@ -282,7 +282,7 @@ def create_app(test_config=None):
                             category=category['id']).filter(Question.id.notin_((previous_questions))).all()
                     random_question = random.choice(questions) #to generate a random question
                     new_question = Not_used_questions[random_question].format() if len(Not_used_questions) > 0 else None
-                    #generate for me a random question that is not in the previous ones and filter by the selected catg_id 
+                    #generate    for me a random question that is not in the previous ones and filter by the selected catg_id 
                     #check if all the question have been used or not [[ at the end of the line]]
                     return jsonify({
                         'success': True,
