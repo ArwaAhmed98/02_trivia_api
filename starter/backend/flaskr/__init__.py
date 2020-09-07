@@ -31,8 +31,7 @@ def create_app(test_config=None):
                   abort(404) # WE DID NOT FIND ANY CATEGORY , 404 => NOT FOUND
             return jsonify({
               'success':True,
-              'total-Categories':len(formatted_catg),
-              'Categories':formatted_catg
+              'categories':formatted_catg
             })
       @app.route('/questions')
       def get_paginated_question():
@@ -47,8 +46,7 @@ def create_app(test_config=None):
               'sucess':True,
               'questions':current_Q,
               'total_questions':len(Question.query.all()),
-              'total_Categories':len(Category.query.all()),
-              'current_Categories' : formatted_catg
+              'categories' : formatted_catg
             })
       @app.route('/questions/<int:question_id>',methods=['DELETE'])
       def DELETE_Q(question_id):
@@ -59,7 +57,7 @@ def create_app(test_config=None):
               x.delete()
               return({
                 'success':True,
-                'ITEM-DELETED':question_id
+                'deleted':question_id
               })
             except:
               abort(422)
@@ -86,9 +84,9 @@ def create_app(test_config=None):
                 # Return response  IF IT ADDED TRUELY 
                   return jsonify ({
                   'success':True,
-                  'Questions':current_Q,
-                  'total_Question':len(Question.query.all()),
-                  'Question_added': Question.query.order_by(Question.id.desc()).first().format() })
+                  'questions':current_Q,
+                  'total_questions':len(Question.query.all()),
+                  'question_created': Question.query.order_by(Question.id.desc()).first().format() })
                   #get the last record in the database by id  
       @app.route('/questions/search',methods=['POST','GET'])
       def search_for_Question():
@@ -105,8 +103,8 @@ def create_app(test_config=None):
                   current_Q= pagination(request,selection)
                   return jsonify({
                         'success':True,
-                        'current_Questions':current_Q,
-                        'total_Question' : len(Question.query.all())
+                        'questions':current_Q,
+                        'total_questions' : len(Question.query.all())
                   })
       @app.route('/categories/<int:catg_id>/questions')
       def ret_Q_On_Catgoery(catg_id):
@@ -120,8 +118,8 @@ def create_app(test_config=None):
                   abort(404) # WE DID NOT FIND ANY QUESTIONS
             return jsonify ({
               'sucess':True,
-              'Questions':curr_Q,
-              'total_Q':len(Question.query.all())
+              'questions':curr_Q,
+              'total_questions':len(Question.query.all())
             })
       @app.route('/quizzes' , methods = ['POST'])
       def get_Q_Play ():
