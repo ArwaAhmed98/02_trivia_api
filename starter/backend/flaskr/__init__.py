@@ -11,23 +11,13 @@ QUESTIONS_PER_PAGE = 10
 
   #     '''
 def create_app(test_config=None):
-      
-      #any changes to commit again
-      
-      
-          
+
       # create and configure the app
       app = Flask(__name__)
       setup_db(app)
   
       CORS(app, resources={'/': {'origins': '*'}})
-  # '''
-  # @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  # # '''
 
-  # '''
-  # @TODO: Use the after_request decorator to set Access-Control-Allow
-  # '''
       
             # here I am gonna implment pagination function for myself in order to call it  somewhere again and again
       def pagination(request,selection):
@@ -42,24 +32,10 @@ def create_app(test_config=None):
       @app.after_request
       def after_request(response):
             
-            
-            response.headers.add('Acess-Control-Allow-Headers' , 'Content-type' , 'Authorization','true')
+            response.headers.add('Access-Control-Allow-Headers','Content-Type,authorization,True')
             response.headers.add('Acess-Control-Allow-Methods' , 'GET,POST,PATCH,DELETE,OPTIONS')
             return response
 
-
-
-  # @TODO: 
-  # Create an endpoint to handle GET requests 
-  # for all available categories.
-  # '''
-
-  
-  # '''
-  # @TODO: 
-  # Create an endpoint to handle GET requests 
-  # for all available categories.
-    # '''
 
       @app.route('/categories')
       def ret_all_avaiabe_categories():
@@ -73,36 +49,8 @@ def create_app(test_config=None):
               abort(404) # WE DID NOT FIND ANY CATEGORY , 404 => NOT FOUND
             return jsonify({
               'success':True,
-              # 'Categories':current_cat,
-              #'total-Categories':len(Category.query.all()),
-              'total-Categories':len(formatted_catg),
-              'Categories':formatted_catg
+              'categories':formatted_catg
             })
-  # '''
-  # @TODO: 
-  # Create an endpoint to handle GET requests for questions, 
-  # including pagination (every 10 questions). 
-  # This endpoint should return a list of questions, 
-  # number of total questions, current category, categories. 
-
-  # TEST: At this point, when you start the application
-  # you should see questions and categories generated,
-  # ten questions per page and pagination at the bottom of the screen for three pages.
-  # Clicking on the page numbers should update the questions. 
-  # '''
-  
-  # '''
-  # @TODO: 
-  # Create an endpoint to handle GET requests for questions, 
-  # including pagination (every 10 questions). 
-  # This endpoint should return a list of questions, 
-  # number of total questions, current category, categories. 
-  # TEST: At this point, when you start the application
-  # you should see questions and categories generated,
-  # ten questions per page and pagination at the bottom of the screen for three pages.
-  # Clicking on the page numbers should update the questions. 
-  # QUESTIONS_PER_PAGE =10
-# '''
       @app.route('/questions')
       def get_paginated_question():
             selection = Question.query.order_by(Question.id).all()
@@ -119,8 +67,7 @@ def create_app(test_config=None):
               'sucess':True,
               'questions':current_Q,
               'total_questions':len(Question.query.all()),
-              'total_Categories':len(Category.query.all()),
-              'current_Categories' : formatted_catg
+              'categories' : formatted_catg
             })
       @app.route('/questions/<int:question_id>',methods=['DELETE'])
       def DELETE_Q(question_id):
@@ -134,28 +81,16 @@ def create_app(test_config=None):
               x.delete()
               return({
                 'success':True,
-                'ITEM-DELETED':question_id
+                'deleted':question_id
               })
             except:
               abort(422)
-  # '''
-
-  # '''
-  # @TODO: 
-  # Create an endpoint to POST a new question, 
-  # which will require the question and answer text, 
-  # category, and difficulty score.
-
-  # TEST: When you submit a question on the "Add" tab, 
-  # the form will clear and the question will appear at the end of the last page
-  # of the questions list in the "List" tab.  
-  # '''
-        
+    
       @app.route('/questions' , methods=['POST'])
       def post_new_question():
             
               # Get item from the POST body
-            req_data = request.get_json()
+            body = request.get_json()
             
             requested_question = body.get('question')
             requested_answer = body.get('answer')
@@ -170,8 +105,8 @@ def create_app(test_config=None):
                     ).insert()
             
             # Return error if item not added
-            if req_data is None:
-                response = Response("{'error': 'Question is  not added - " + req_data + "'}", status=422
+            if body is None:
+                response = Response("{'error': 'Question is  not added - " + body + "'}", status=422
                                     , mimetype='application/json')
                 return response #422  // Unprocessable Entity 
             else:
@@ -182,9 +117,11 @@ def create_app(test_config=None):
                 # Return response  IF IT ADDED TRUELY 
                   return jsonify ({
                   'success':True,
-                  'Questions':current_Q,
-                  'total_Question':len(Question.query.all()),
-                  'Question_added': Question.query.order_by(Question.id.desc()).first().format() })
+                  'questions':current_Q,
+                  'total_questions':len(Question.query.all()),
+                  'question_created': Question.query.order_by(Question.id.desc()).first().format(),
+                  'question_created': Question.query.first().format()
+                   })
                   #get the last record in the database by id 
 
   # '''
@@ -217,48 +154,23 @@ def create_app(test_config=None):
                         current_Q= pagination(request,selection)
                         return jsonify({
                           'success':True,
-                          'current_Questions':current_Q,
-                          'total_Question' : len(Question.query.all())
+                          'questions':current_Q,
+                          'total_questions' : len(Question.query.all())
                         })
-                    
-
-  # '''
-  # @TODO: 
-  # Create a GET endpoint to get questions based on category. 
-
-  # TEST: In the "List" tab / main screen, clicking on one of the 
-  # categories in the left column will cause only questions of that 
-  # category to be shown. 
-  # '''
+      
 
       @app.route('/categories/<int:catg_id>/questions')
       def ret_Q_On_Catgoery(catg_id):
-            
-              #x = Question.query.filter(Question.id == question_id).one_or_none()
-            catg = Catgreory.query.filter_by(catg_id == Catgreory.id ).one_or_none()
-            if catg is None:
-                  abort(404) #NOT FOUND 
-            selection = Question.query.filter_by(catg==Category.id).all()
-            curr_Q = paginate(request,selection)
-            if len(curr_Q) == 0 :
-                  abort(404) # WE DID NOT FIND ANY QUESTIONS
+            casted=str(catg_id)
+            #cast the function parameter to string to compare and filter
+            questions=Question.query.filter(Question.category == casted).all 
+           
             return jsonify ({
               'sucess':True,
-              'Questions':curr_Q,
-              'total_Q':len(Question.query.all())
+              'questions': [question.format() for question in questions], #return e a lit of questions and format 
+              'total_questions':len(questions),
+              'current_category': catg_id # the parameter of the function as we choose by the category id
             })
-
-  # '''
-  # @TODO: 
-  # Create a POST endpoint to get questions to play the quiz. 
-  # This endpoint should take category and previous question parameters 
-  # and return a random questions within the given category, 
-  # if provided, and that is not one of the previous questions. 
-
-  # TEST: In the "Play" tab, after a user selects "All" or a category,
-  # one question at a time is displayed, the user is allowed to answer
-  # and shown whether they were correct or not. 
-  # '''
 
       @app.route('/quizzes' , methods = ['POST'])
       def get_Q_Play ():
