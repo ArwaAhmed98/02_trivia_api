@@ -66,11 +66,11 @@ class TriviaTestCase(unittest.TestCase):
         data=json.loads(res.data)
         self.assertEqual(res.status_code,404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'] , 'Resource is Not found')
+        self.assertEqual(data['message'] ,'Resource is Not found')
 
     def test_add_question(self):
         Q_Before = len(Question.query.all())
-        response = self.client().post('/questions' , json=new_Q)
+        response = self.client().post('/questions' , json=self.new_Q)
         data=json.loads(response.data)
         Q_after=len(Question.query.all())
     
@@ -80,7 +80,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_failure_add_Q(self):
         
     #   Q_Before = len(Question.query.all())
-        response = self.client().post('/questions' , json=new_Q)
+        response = self.client().post('/questions' , json={})
         data=json.loads(response.data)
     #   Q_after=len(Question.query.all())
     
@@ -98,10 +98,9 @@ class TriviaTestCase(unittest.TestCase):
         queston=Question.query.filter(Question.id == queston.id).one_or_none()
         self.assertEqual(response.status_code,200)
         self.assertEqual(data['success'],True)
-        self.assertTrue(data['deleted'],queston.id) 
+        self.assertEqual(data['deleted'],str(queston.id)) #cast the question id into string in order to compare  
         self.assertEqual(queston,None)
         #ensure that queston which is gonna be deleted is none 
-        #make casting in order to compare 
     def delete_Non_existing_ques(self):
            
         response = self.client().post('/questions/{}')
@@ -113,11 +112,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'] , 'unprocessable')
         
     def test_search_q(self):
-        what_we_search_for={
-            'searchTerm' : ''
-        }
         
-        response = self.client().post('/questions/search' , json=what_we_search_for)
+        response = self.client().post('/questions/search' , json={ 'searchTerm' : 'How are you ?'})
         data=json.loads(response.data)
         
     
@@ -127,11 +123,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertNotEqual(data['questions'],0)
     def test_404_search(self):
         
-        what_we_search_for={
-            'searchTerm' : ''
-        }
-        
-        response = self.client().post('/questions/search' , json=what_we_search_for)
+        response = self.client().post('/questions/search' , json={'searchTerm' : ''})
         data=json.loads(response.data)
         
     
@@ -142,7 +134,7 @@ class TriviaTestCase(unittest.TestCase):
         
         response = self.client().get('/categories/2/questions' )
         
-        response = self.client().post('/questions/search' , json=what_we_search_for)
+        response = self.client().post('/questions/search' , json={'searchTerm' : ''})
         data=json.loads(response.data)
         
     
@@ -152,7 +144,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['current_category'])
     def test_404_get_Q_Category(self):
         
-        response = self.client().get('/categories/XXXX/questions' )
+        response = self.client().get('/categories/ANYTHING/questions' )
         data=json.loads(response.data)
         self.assertEqual(response.status_code,400)
         self.assertEqual(data['success'],False)
